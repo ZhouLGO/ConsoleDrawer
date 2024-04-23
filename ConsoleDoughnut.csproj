@@ -68,14 +68,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Spatial, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\MathNet.Spatial.0.6.0\lib\net461\MathNet.Spatial.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -87,7 +82,6 @@
     <Compile Include="Programe\Canvas.cs" />
     <Compile Include="Programe\MathModel\Cube.cs" />
     <Compile Include="Programe\MathModel\Doughtnut.cs" />
-    <Compile Include="Programe\MathModel\IMathModel.cs" />
     <Compile Include="Stage.cs" />
     <Compile Include="Programe\Light.cs" />
     <Compile Include="Programe\Math\MathExtendsion.cs" />
@@ -97,7 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">

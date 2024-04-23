@@ -1,5 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
-using System;
+﻿using System;
+using System.Numerics;
 
 namespace ConsoleStage.MathModel
 {
@@ -22,17 +22,17 @@ namespace ConsoleStage.MathModel
         /// <param name="thetaRadians">θ角，环上某点和环心的连线与x轴的夹角大小(单位：弧度)</param>
         /// <param name="vector">从环心指向环上该点的一个一行三列矩阵</param>
         /// <returns>返回一个一行三列的新矩阵，意为在指定角度下的环上某点</returns>
-        private DenseMatrix GetCirclePoint(double thetaRadians, out DenseMatrix vector)
+        private Vector3 GetCirclePoint(float thetaRadians, out Vector3 vector)
         {
-            double sinTheta = Math.Sin(thetaRadians);
-            double cosTheta = Math.Cos(thetaRadians);
+            float sinTheta = (float)Math.Sin(thetaRadians);
+            float cosTheta = (float)Math.Cos(thetaRadians);
 
-            vector = new DenseMatrix(1, 3, new double[] { cosTheta, sinTheta, 0 });
+            vector = new Vector3(cosTheta, sinTheta, 0 );
 
-            double x = R + r * cosTheta;
-            double y = r * sinTheta;
-            double z = 0;
-            return new DenseMatrix(1, 3, new double[] { x, y, z });
+            float x = R + r * cosTheta;
+            float y = r * sinTheta;
+            float z = 0;
+            return new Vector3( x, y, z );
         }
 
 
@@ -43,12 +43,12 @@ namespace ConsoleStage.MathModel
         /// <param name="thetaRadians">θ角，环上某点和环心的连线与x轴的夹角大小(单位：弧度)</param>
         /// <param name="normal">甜甜圈上的位于该点的表面法线</param>
         /// <returns>返回一个一行三列的新矩阵，意为在指定θ角下的环上某点，在围绕?轴旋转ϕ角后的结果，也就是环上某点与旋转矩阵相乘的结果</returns>
-        public DenseMatrix GetPointRotatingAroundAxis(DenseMatrix rotationAxis, double thetaRadians, out DenseMatrix normal)
+        public Vector3 GetPointRotatingAroundAxis(Quaternion quaternion, float thetaRadians, out Vector3 normal)
         {
 
-            DenseMatrix originPoint = GetCirclePoint(thetaRadians,out var vector);
-            normal = vector * rotationAxis;
-            return originPoint * rotationAxis;
+            Vector3 originPoint = GetCirclePoint(thetaRadians,out var vector);
+            normal = Vector3.Transform(vector, quaternion);
+            return Vector3.Transform(originPoint, quaternion);
         }
     }
 

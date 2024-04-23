@@ -1,8 +1,6 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 
 namespace ConsoleStage.Tools
 {
@@ -13,7 +11,7 @@ namespace ConsoleStage.Tools
         public readonly float eyesToScreen; //人眼与屏幕之间的距离(K1)
         public float sreenToObj;   //“3D物体”中心到屏幕的距离(K2)
         public float eyesToObj => eyesToScreen + sreenToObj;
-        public double[,] zAxisProximityRatio;  //每个字符点的深度信息缓存，因为每次计算“甜甜圈”的采样点集是前后都算的，但是绘制的时候仅需将面对屏幕最近的一些点画出来
+        public float[,] zAxisProximityRatio;  //每个字符点的深度信息缓存，因为每次计算“甜甜圈”的采样点集是前后都算的，但是绘制的时候仅需将面对屏幕最近的一些点画出来
         public char[,] charBuffer;  //由width与height构成的画布的字符缓存
 
         public Canvas(int width, int height, float eyes2Screen, float sreenToObj)
@@ -23,7 +21,7 @@ namespace ConsoleStage.Tools
             this.eyesToScreen = eyes2Screen;
             this.sreenToObj = sreenToObj;
 
-            zAxisProximityRatio = new double[height, width];
+            zAxisProximityRatio = new float[height, width];
             charBuffer = new char[height, width];
         }
 
@@ -32,17 +30,17 @@ namespace ConsoleStage.Tools
         /// </summary>
         /// <param name="point">采样点(含有xyz轴坐标信息（一行三列的矩阵）)</param>
         /// <returns>返回其在屏幕上的投影点</returns>
-        public DenseMatrix CalculateScreenPoint(DenseMatrix point)
+        public Vector3 CalculateScreenPoint(Vector3 point)
         {
-            double depthRatio = 1 / (point.At(0, 2) + eyesToObj); // 眼睛到实参点的z轴距离;
+            float depthRatio = 1 / (point.Z + eyesToObj); // 眼睛到实参点的z轴距离;
                                                                    //计算屏幕原点
-            double x = eyesToScreen * point.At(0, 0) * depthRatio;
-            double y = -(eyesToScreen * point.At(0, 1) * depthRatio); //因为屏幕坐标空间的原点在左上角,所以这里y的计算结果取负值了
-            DenseMatrix screenP = new DenseMatrix(1, 3, new double[3] { x, y, depthRatio });//屏幕点依然携带着深度信息
+            float x = eyesToScreen * point.X * depthRatio;
+            float y = -(eyesToScreen * point.Y * depthRatio); //因为屏幕坐标空间的原点在左上角,所以这里y的计算结果取负值了
+            Vector3 screenP = new Vector3( x, y, depthRatio );//屏幕点依然携带着深度信息
 
             //因为屏幕坐标空间的原点在左上角，所以施加半个窗口大小的偏移，将“表现层的甜甜圈”的中心挪到屏幕中心上
-            screenP += new DenseMatrix(1, 3, new double[3] { width / 2, 0, 0 });
-            screenP += new DenseMatrix(1, 3, new double[3] { 0, height / 2, 0 }); ;
+            screenP += new Vector3(width / 2, 0, 0 );
+            screenP += new Vector3(0, height / 2, 0 );
 
             return screenP;
         }
@@ -53,15 +51,15 @@ namespace ConsoleStage.Tools
         /// </summary>
         /// <param name="screenPoint">屏幕上的某点</param>
         /// <returns>该点是否在其他已计算的点的上层</returns>
-        public bool CheckPointInFonrt(Matrix screenPoint)
+        public bool CheckPointInFonrt(Vector3 screenPoint)
         {
-            if (0 <= screenPoint.At(0, 0) && screenPoint.At(0, 0) < width
-             && 0 <= screenPoint.At(0, 1) && screenPoint.At(0, 1) < height)
+            if (0 <= screenPoint.X && screenPoint.X < width
+             && 0 <= screenPoint.Y && screenPoint.Y < height)
             {
-                int x_pixel = (int)screenPoint.At(0, 0);    //光标之前列的字符数
-                int y_pixel = (int)screenPoint.At(0, 1);   //光标当前行的字符数
-                double cachedDepthRatio = zAxisProximityRatio[y_pixel, x_pixel];//当前正在刷新的目标“像素点”的深度信息
-                double currentDepthRatio = screenPoint.At(0, 2);
+                int x_pixel = (int)screenPoint.X;    //光标之前列的字符数
+                int y_pixel = (int)screenPoint.Y;   //光标当前行的字符数
+                float cachedDepthRatio = zAxisProximityRatio[y_pixel, x_pixel];//当前正在刷新的目标“像素点”的深度信息
+                float currentDepthRatio = screenPoint.Z;
                 if (currentDepthRatio > cachedDepthRatio)
                 {
                     zAxisProximityRatio[y_pixel, x_pixel] = cachedDepthRatio;
@@ -71,9 +69,9 @@ namespace ConsoleStage.Tools
             return false;
         }
 
-        public void UpdatePixel(Matrix screenPoint, char value)
+        public void UpdatePixel(Vector3 screenPoint, char value)
         {
-            charBuffer[(int)screenPoint.At(0, 1), (int)screenPoint.At(0, 0)] = value;
+            charBuffer[(int)screenPoint.Y, (int)screenPoint.X] = value;
         }
 
         public void Draw()

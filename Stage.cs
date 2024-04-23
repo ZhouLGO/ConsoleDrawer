@@ -1,10 +1,8 @@
 ﻿using ConsoleStage.MathModel;
 using ConsoleStage.Tools;
-using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Spatial.Euclidean;
-using MathNet.Spatial.Units;
 using System;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace ConsoleStage
 {
@@ -12,14 +10,14 @@ namespace ConsoleStage
     {
         static void Main(string[] args)
         {
-            DrawDoughnut();
-            //DrawCube();
+            //DrawDoughnut();
+            DrawCube();
         }
         static void DrawCube()
         {
             Cube cubeMathModel = new Cube(15);
             Canvas canvas = new Canvas(50, 28, 50, 5);
-            Light light = new Light(1, 1, 0);//平行光的朝向
+            Light light = new Light(1, 0, 1);//平行光的朝向
             Shader shader = new Shader();
 
             float xAxisRotationRadians = 0;
@@ -40,18 +38,13 @@ namespace ConsoleStage
                         {
                             EDirection eside = (EDirection)side;
 
-                            DenseMatrix xAxisRotationMatrix = Matrix3D.RotationAroundXAxis(Angle.FromRadians(xAxisRotationRadians));
-                            DenseMatrix yAxisRotationMatrix = Matrix3D.RotationAroundYAxis(Angle.FromRadians(yAxisRotationRadians));
-                            DenseMatrix zAxisRotationMatrix = (DenseMatrix)Matrix3D.RotationAroundZAxis(Angle.FromRadians(zAxisRotationRadians));
+                            Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(yAxisRotationRadians, xAxisRotationRadians, zAxisRotationRadians); /*Matrix3D.RotationAroundXAxis(Angle.FromRadians(xAxisRotationRadians))*/;
 
-                            DenseMatrix rotationMatrix = yAxisRotationMatrix * xAxisRotationMatrix * zAxisRotationMatrix;
+                            Vector3 surfacePoint = cubeMathModel.GetSquarePoint(((float)xUnit) / stepLength, ((float)yUnit) / stepLength, eside, out Vector3 normal);
+                            Vector3 rotatedSurfacePoint = Vector3.Transform(surfacePoint, quaternion);
+                            Vector3 rotatedNormal = Vector3.Transform(normal, quaternion);
 
-
-                            DenseMatrix surfacePoint = cubeMathModel.GetSquarePoint(((double)xUnit) / stepLength, ((double)yUnit) / stepLength, eside, out DenseMatrix normal);
-                            DenseMatrix rotatedSurfacePoint = surfacePoint * rotationMatrix;
-                            DenseMatrix rotatedNormal = normal * rotationMatrix;
-
-                            DenseMatrix screenPoint = canvas.CalculateScreenPoint(rotatedSurfacePoint);
+                            Vector3 screenPoint = canvas.CalculateScreenPoint(rotatedSurfacePoint);
 
                             if (canvas.CheckPointInFonrt(screenPoint))
                             {
@@ -66,9 +59,9 @@ namespace ConsoleStage
 
                 canvas.Draw();
 
-                xAxisRotationRadians += 0.03f;
-                yAxisRotationRadians += 0.01f;
-                zAxisRotationRadians += 0.02f;
+                xAxisRotationRadians += 0.003f;
+                yAxisRotationRadians += 0.001f;
+                zAxisRotationRadians += 0.002f;
             }
         }
 
@@ -77,7 +70,7 @@ namespace ConsoleStage
             Doughnut doughnutMathModel = new Doughnut(10, 5);
             Canvas canvas = new Canvas(50, 28, 50, 5);
             //面向屏幕，xyz的正半轴分别是：左、下、垂直屏幕向内
-            Light light = new Light(1, 2, 0);//平行光的朝向
+            Light light = new Light(1, 1, 0);//平行光的朝向
             Shader shader = new Shader();
 
             float zAxisRotationRadians = 0;
@@ -94,14 +87,14 @@ namespace ConsoleStage
                 {
                     Parallel.For(0, 360, yAxisEachAngle =>
                     {
-                        DenseMatrix yAxisRotationMatrix = Matrix3D.RotationAroundYAxis(Angle.FromDegrees(yAxisEachAngle));
-                        DenseMatrix xAxisRotationMatrix = Matrix3D.RotationAroundXAxis(Angle.FromRadians(xAxisRotationRadians));
-                        DenseMatrix zAxisRotationMatrix = (DenseMatrix)Matrix3D.RotationAroundZAxis(Angle.FromRadians(zAxisRotationRadians));
+                        Quaternion yAxisRotationQ = Quaternion.CreateFromAxisAngle(Vector3.UnitY, yAxisEachAngle);
+                        Quaternion xAxisRotationQ = Quaternion.CreateFromAxisAngle(Vector3.UnitX, xAxisRotationRadians);
+                        Quaternion zAxisRotationQ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, zAxisRotationRadians);
 
-                        DenseMatrix samplePoint = doughnutMathModel.GetPointRotatingAroundAxis(yAxisRotationMatrix, Angle.FromDegrees(circleEachAngle * stepLength).Radians, out var normal);
-                        DenseMatrix rotatedSamPoint = (samplePoint * xAxisRotationMatrix * zAxisRotationMatrix);
-                        DenseMatrix rotatedNormal = normal * xAxisRotationMatrix * zAxisRotationMatrix;
-                        DenseMatrix screenPoint = canvas.CalculateScreenPoint(rotatedSamPoint);
+                        Vector3 samplePoint = doughnutMathModel.GetPointRotatingAroundAxis(yAxisRotationQ, MathExtendsion.ToRadians(circleEachAngle * stepLength), out var normal);
+                        Vector3 rotatedSamPoint = Vector3.Transform(samplePoint, xAxisRotationQ * zAxisRotationQ);
+                        Vector3 rotatedNormal = Vector3.Transform(normal, xAxisRotationQ * zAxisRotationQ);
+                        Vector3 screenPoint = canvas.CalculateScreenPoint(rotatedSamPoint);
 
                         if (canvas.CheckPointInFonrt(screenPoint))
                         {
@@ -115,8 +108,8 @@ namespace ConsoleStage
 
                 canvas.Draw();
 
-                xAxisRotationRadians += 0.075f;
-                zAxisRotationRadians += 0.025f;
+                xAxisRotationRadians += 0.002f;
+                zAxisRotationRadians += 0.005f;
             }
         }
 

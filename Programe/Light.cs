@@ -1,14 +1,14 @@
 ﻿using System;
-using MathNet.Numerics.LinearAlgebra.Double;
+using System.Numerics;
 
 namespace ConsoleStage.Tools
 {
     public class Light
     {
-        public DenseMatrix LightDirection { get; private set; }
+        public Vector3 LightDirection { get; private set; }
         public Light(float x, float y, float z)
         {
-            LightDirection = new DenseMatrix(3,1,new double[] { x,y,z});
+            LightDirection = new Vector3(x, y, z);
         }
     }
 }

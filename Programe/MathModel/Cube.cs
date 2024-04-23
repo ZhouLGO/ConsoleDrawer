@@ -1,53 +1,53 @@
 ﻿using System;
 using ConsoleStage.Tools;
-using MathNet.Numerics.LinearAlgebra.Double;
+using System.Numerics;
 
 namespace ConsoleStage.MathModel
 {
     public class Cube
     {
-        public static readonly DenseMatrix frontNormal = new DenseMatrix(1, 3, new double[] { 0, 0, 1 });
-        public static readonly DenseMatrix rightNormal = new DenseMatrix(1, 3, new double[] { 1, 0, 0 });
-        public static readonly DenseMatrix upNormal = new DenseMatrix(1, 3, new double[] { 0, 1, 0 });
+        public static Vector3 Front => Vector3.UnitZ;
+        public static Vector3 Right => Vector3.UnitX;
+        public static Vector3 Up => Vector3.UnitY;
 
-        public double Size { get; private set; }
-        public Cube(double size)
+        public float Size { get; private set; }
+        public Cube(float size)
         {
             Size = size;
         }
 
-        public DenseMatrix GetSquarePoint(double xUnit, double yUnit, EDirection side, out DenseMatrix normal)
+        public Vector3 GetSquarePoint(float xUnit, float yUnit, EDirection side, out Vector3 normal)
         {
-            DenseMatrix point = default;
+            Vector3 point = default;
             normal = default;
-            double halfLength = Size / 2;
-            double x = MathExtendsion.Lerp( -halfLength, halfLength, xUnit);
-            double y = MathExtendsion.Lerp( -halfLength, halfLength,yUnit);
+            float halfLength = Size / 2;
+            float x = MathExtendsion.Lerp( -halfLength, halfLength, xUnit);
+            float y = MathExtendsion.Lerp( -halfLength, halfLength,yUnit);
             switch (side)
             {
                 case EDirection.Forward:
-                    point = new DenseMatrix(1, 3, new double[] { x, y, halfLength });
-                    normal = frontNormal;
+                    point = new Vector3(x, y, halfLength );
+                    normal = Front;
                     break;
                 case EDirection.Right:
-                    point = new DenseMatrix(1, 3, new double[] { halfLength, x, y });
-                    normal = rightNormal;
+                    point = new Vector3( halfLength, x, y );
+                    normal = Right;
                     break;
                 case EDirection.Up:
-                    point = new DenseMatrix(1, 3, new double[] { x, halfLength, y });
-                    normal = upNormal;
+                    point = new Vector3( x, halfLength, y );
+                    normal = Up;
                     break;
                 case EDirection.Back:
-                    point = new DenseMatrix(1, 3, new double[] { -x, -y, -halfLength });
-                    normal = -frontNormal;
+                    point = new Vector3( -x, -y, -halfLength);
+                    normal = -Front;
                     break;
                 case EDirection.Left:
-                    point = new DenseMatrix(1, 3, new double[] { -halfLength, -x, -y });
-                    normal = -rightNormal;
+                    point = new Vector3( -halfLength, -x, -y );
+                    normal = -Right;
                     break;
                 case EDirection.Down:
-                    point = new DenseMatrix(1, 3, new double[] { -x, -halfLength, -y });
-                    normal = -upNormal;
+                    point = new Vector3( -x, -halfLength, -y);
+                    normal = -Up;
                     break;
                 default:
                     break;

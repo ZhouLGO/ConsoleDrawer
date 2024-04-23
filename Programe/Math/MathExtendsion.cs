@@ -4,26 +4,30 @@ namespace ConsoleStage.Tools
 {
     public static class MathExtendsion
     {
-        public static double Clamp(double x,double min,double max)
+        public static float Clamp(float x,float min,float max)
         {
             return Math.Max(min, Math.Min(x, max));
         }
 
-        public static double Lerp(double a, double b, double t)
+        public static float Lerp(float a, float b, float t)
         {
             return a + (b - a) * t;
         }
 
-        public static double Unlerp(double a, double b, double v)
+        public static float Unlerp(float a, float b, float v)
         {
             if (a == b) return 0; // 防止除以0的异常
             return (v - a) / (b - a);
         }
 
-        public static double Remap(double t,double source1,double source2,double target1, double target2)
+        public static float Remap(float t,float source1,float source2,float target1, float target2)
         {
             return Lerp(target1, target2, Unlerp(source1, source2, t));
         }
 
+        public static float ToRadians(float angle)
+        {
+            return angle * (float)Math.PI / 180;
+        }
     }
 }
