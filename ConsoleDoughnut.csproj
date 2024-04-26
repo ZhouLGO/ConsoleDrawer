@@ -79,14 +79,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Programe\Canvas.cs" />
-    <Compile Include="Programe\MathModel\Cube.cs" />
-    <Compile Include="Programe\MathModel\Doughtnut.cs" />
+    <Compile Include="Program\Canvas.cs" />
+    <Compile Include="Program\MathModel\Cube.cs" />
+    <Compile Include="Program\MathModel\Doughtnut.cs" />
     <Compile Include="Stage.cs" />
-    <Compile Include="Programe\Light.cs" />
-    <Compile Include="Programe\Math\MathExtendsion.cs" />
-    <Compile Include="Programe\Math\Transform.cs" />
-    <Compile Include="Programe\Shader.cs" />
+    <Compile Include="Program\Light.cs" />
+    <Compile Include="Program\Math\MathExtendsion.cs" />
+    <Compile Include="Program\Math\Transform.cs" />
+    <Compile Include="Program\Shader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
